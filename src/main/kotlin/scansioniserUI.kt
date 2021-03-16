@@ -32,13 +32,19 @@ class ScansioniserUI(props: UIProps) : RComponent<UIProps, UIState>(props) {
                 value = state.input
                 onChangeFunction = { event ->
                     val input = (event.target as HTMLInputElement).value
-                    val elided = Scanner.scan(input).filter { it.isElided }.map { it.position }
                     val output = input.toMutableList()
                     var offset = 0
-                    for (elidedRange in elided) {
-                        output.add(elidedRange.last+1+offset, ')')
-                        output.add(elidedRange.first+offset, '(')
-                        offset += 2
+                    for (vowel in Scanner.scan(input)) {
+                        if (vowel.isElided) {
+                            output.add(vowel.position.last + 1 + offset, ')')
+                            output.add(vowel.position.first + offset, '(')
+                            offset += 2
+                        }
+                        if (vowel.isLong) {
+                            output.add(vowel.position.last + 1 + offset, '_')
+                            output.add(vowel.position.first + offset, '_')
+                            offset += 2
+                        }
                     }
                     setState(
                         UIState(input = input, output = output.toTypedArray().joinToString(separator = ""))

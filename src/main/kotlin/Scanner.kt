@@ -1,9 +1,10 @@
 object Scanner {
-    fun scan(input: String): Set<Vowel> {
+    fun scan(input: String): Collection<Vowel> {
         val line = input.toLowerCase()
-        val vowels = findVowels(line)
-        vowels.findElisions(line)
-        return vowels
+        return findVowels(line)
+            .findElisions(line)
+            .markDiphthongsLong(line)
+            .markLongByPosition(line)
     }
 
     private fun findVowels(input: String): Set<Vowel> {
@@ -26,6 +27,18 @@ object Scanner {
         return this
     }
 
+    private fun Collection<Vowel>.markDiphthongsLong(input: String): Collection<Vowel> {
+        this.forEach { if (it.position.first != it.position.last) it.isLong = true }
+        return this
+    }
+
+    private fun Collection<Vowel>.markLongByPosition(input: String): Collection<Vowel> {
+        longByPosition.findAll(input).forEach { result ->
+            this.find { result.range.contains(it.position.last)}?.isLong = true
+        }
+        return this
+    }
+
     class Vowel(val position: IntRange) {
         var isElided = false
         var isLong = false
@@ -34,6 +47,7 @@ object Scanner {
     private val singleVowels = Regex("[aeiou]")
     private val diphthongs = Regex("([ao]e)|(ei)|([ae]u)")
     private val elisions = Regex("${singleVowels.pattern}m? h?${singleVowels.pattern}")
+    private val longByPosition = Regex("${singleVowels.pattern} ?([zx]|([bcdfgjklmnpqrst] ?[bcdfgjkmnpqst])|([klmnqrs] ?r)|([bcdfgjpt] r)|([bcdjklmnqrst] ?l)|([fgp] l))")
 
     private fun IntRange.overlaps(other: IntRange): Boolean {
         return this.first <= other.last && this.last >= other.first
