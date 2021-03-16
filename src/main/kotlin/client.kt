@@ -5,9 +5,9 @@ import kotlinx.browser.window
 fun main() {
     window.onload = {
         render(document.getElementById("root")) {
-            child(Welcome::class) {
+            child(ScansioniserUI::class) {
                 attrs {
-                    name = "Kotlin/JS"
+                    input = "Kotlin/JS"
                 }
             }
         }

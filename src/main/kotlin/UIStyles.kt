@@ -1,7 +1,7 @@
 import kotlinx.css.*
 import styled.StyleSheet
 
-object WelcomeStyles : StyleSheet("WelcomeStyles", isStatic = true) {
+object UIStyles : StyleSheet("WelcomeStyles", isStatic = true) {
     val textContainer by css {
         padding(5.px)
 
