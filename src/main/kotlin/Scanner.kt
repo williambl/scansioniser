@@ -5,6 +5,9 @@ object Scanner {
             .findElisions(line)
             .markDiphthongsLong(line)
             .markLongByPosition(line)
+
+        Meter.DACTYLIC_HEXAMETER.applyTo(result)
+
         inferVowelStresses(result)
 
         return result
@@ -43,13 +46,10 @@ object Scanner {
     }
 
     private tailrec fun inferVowelStresses(vowels: List<Vowel>, fullVowels: List<Vowel> = vowels, vowelsStartsFrom: Int = 0, feet: Sequence<Foot> = Foot.values().asSequence()) {
-        println(vowels.first().position)
-        println(vowels.last().position)
         val foot = feet
             .filter { it.size == vowels.size }
             .filter { it.matches(vowels) }
             .firstOrNull()
-        println(foot)
         if (foot != null) {
             foot.applyTo(vowels)
             if (fullVowels != vowels && fullVowels.size > vowels.size+vowelsStartsFrom)
@@ -85,6 +85,20 @@ enum class Foot(private val stresses: List<Stress>): List<Stress> by stresses {
 
     fun applyTo(vowels: List<Scanner.Vowel>): List<Scanner.Vowel> {
         vowels.zip(this).forEach { (vowel, stress) -> vowel.stress = stress }
+        return vowels
+    }
+}
+
+enum class Meter(private val feet: List<Foot?>): List<Foot?> by feet {
+    DACTYLIC_HEXAMETER(listOf(null, null, null, null, Foot.DACTYL, Foot.SPONDEE));
+
+    fun applyTo(vowels: List<Scanner.Vowel>): List<Scanner.Vowel> {
+        var i = 0
+        for (foot in feet.reversed()) if (foot != null) {
+            if (vowels.lastIndex-i-foot.size < 0) return vowels
+            foot.applyTo(vowels.subList(vowels.size-i-foot.size, vowels.size-i))
+            i += foot.size
+        }
         return vowels
     }
 }
