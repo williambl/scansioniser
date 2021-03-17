@@ -35,15 +35,24 @@ class ScansioniserUI(props: UIProps) : RComponent<UIProps, UIState>(props) {
                     val output = input.toMutableList()
                     var offset = 0
                     for (vowel in Scanner.scan(input)) {
-                        if (vowel.isElided) {
-                            output.add(vowel.position.last + 1 + offset, ')')
-                            output.add(vowel.position.first + offset, '(')
-                            offset += 2
-                        }
-                        if (vowel.isLong) {
-                            output.add(vowel.position.last + 1 + offset, '_')
-                            output.add(vowel.position.first + offset, '_')
-                            offset += 2
+                        when {
+                            vowel.isElided -> {
+                                output.add(vowel.position.last + 1 + offset, ')')
+                                output.add(vowel.position.first + offset, '(')
+                                offset += 2
+                            }
+                            vowel.isLong -> {
+                                for (position in vowel.position) {
+                                    offset++
+                                    output.add(position+offset, '̄')
+                                }
+                            }
+                            else -> {
+                                for (position in vowel.position) {
+                                    offset++
+                                    output.add(position+offset, '̆')
+                                }
+                            }
                         }
                     }
                     setState(
