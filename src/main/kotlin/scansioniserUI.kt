@@ -44,13 +44,13 @@ class ScansioniserUI(props: UIProps) : RComponent<UIProps, UIState>(props) {
                             Stress.STRESSED -> {
                                 for (position in vowel.position) {
                                     offset++
-                                    output.add(position + offset, '̄')
+                                    output.add(position + offset, '\u0304')
                                 }
                             }
                             Stress.UNSTRESSED -> {
                                 for (position in vowel.position) {
                                     offset++
-                                    output.add(position + offset, '̆')
+                                    output.add(position + offset, '\u0306')
                                 }
                             }
                             Stress.UNKNOWN -> {}
