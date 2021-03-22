@@ -1,12 +1,12 @@
 object Scanner {
-    fun scan(input: String): Collection<Vowel> {
+    fun scan(input: String, meter: Meter = Meter.UNKNOWN): Collection<Vowel> {
         val line = input.toLowerCase()
         val result = findVowels(line)
             .findElisions(line)
             .markDiphthongsLong(line)
             .markLongByPosition(line)
 
-        Meter.DACTYLIC_HEXAMETER.applyTo(result)
+        meter.applyTo(result)
 
         inferVowelStresses(result)
 
@@ -59,11 +59,6 @@ object Scanner {
         }
     }
 
-    class Vowel(val position: IntRange) {
-        var isElided = false
-        var stress = Stress.UNKNOWN
-    }
-
     private val singleVowels = Regex("[aeiou]")
     private val diphthongs = Regex("([ao]e)|(ei)|([ae]u)")
     private val elisions = Regex("${singleVowels.pattern}m? h?${singleVowels.pattern}")
@@ -74,33 +69,9 @@ object Scanner {
     }
 }
 
-enum class Foot(private val stresses: List<Stress>): List<Stress> by stresses {
-    DACTYL(listOf(Stress.STRESSED, Stress.UNSTRESSED, Stress.UNSTRESSED)),
-    SPONDEE(listOf(Stress.STRESSED, Stress.STRESSED));
-
-    fun matches(vowels: List<Scanner.Vowel>): Boolean {
-        for ((i, vowel) in vowels.withIndex()) if (!vowel.stress.matches(this[i])) return false
-        return true
-    }
-
-    fun applyTo(vowels: List<Scanner.Vowel>): List<Scanner.Vowel> {
-        vowels.zip(this).forEach { (vowel, stress) -> vowel.stress = stress }
-        return vowels
-    }
-}
-
-enum class Meter(private val feet: List<Foot?>): List<Foot?> by feet {
-    DACTYLIC_HEXAMETER(listOf(null, null, null, null, Foot.DACTYL, Foot.SPONDEE));
-
-    fun applyTo(vowels: List<Scanner.Vowel>): List<Scanner.Vowel> {
-        var i = 0
-        for (foot in feet.reversed()) if (foot != null) {
-            if (vowels.lastIndex-i-foot.size < 0) return vowels
-            foot.applyTo(vowels.subList(vowels.size-i-foot.size, vowels.size-i))
-            i += foot.size
-        }
-        return vowels
-    }
+class Vowel(val position: IntRange) {
+    var isElided = false
+    var stress = Stress.UNKNOWN
 }
 
 enum class Stress {
@@ -113,5 +84,35 @@ enum class Stress {
             true
         else
             this == other
+    }
+}
+
+enum class Foot(private val stresses: List<Stress>): List<Stress> by stresses {
+    DACTYL(listOf(Stress.STRESSED, Stress.UNSTRESSED, Stress.UNSTRESSED)),
+    SPONDEE(listOf(Stress.STRESSED, Stress.STRESSED));
+
+    fun matches(vowels: List<Vowel>): Boolean {
+        for ((i, vowel) in vowels.withIndex()) if (!vowel.stress.matches(this[i])) return false
+        return true
+    }
+
+    fun applyTo(vowels: List<Vowel>): List<Vowel> {
+        vowels.zip(this).forEach { (vowel, stress) -> vowel.stress = stress }
+        return vowels
+    }
+}
+
+enum class Meter(private val feet: List<Foot?>): List<Foot?> by feet {
+    DACTYLIC_HEXAMETER(listOf(null, null, null, null, Foot.DACTYL, Foot.SPONDEE)),
+    UNKNOWN(listOf());
+
+    fun applyTo(vowels: List<Vowel>): List<Vowel> {
+        var i = 0
+        for (foot in feet.reversed()) if (foot != null) {
+            if (vowels.lastIndex-i-foot.size < 0) return vowels
+            foot.applyTo(vowels.subList(vowels.size-i-foot.size, vowels.size-i))
+            i += foot.size
+        }
+        return vowels
     }
 }
