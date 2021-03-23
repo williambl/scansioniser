@@ -6,9 +6,9 @@ object Scanner {
             .markDiphthongsLong(line)
             .markLongByPosition(line)
 
-        meter.applyTo(result)
+        meter.applyTo(result.filterNot { it.isElided })
 
-        inferVowelStresses(result)
+        inferVowelStresses(result.filterNot { it.isElided })
 
         return result
     }
