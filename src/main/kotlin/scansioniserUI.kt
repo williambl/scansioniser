@@ -44,7 +44,7 @@ class ScansioniserUI(props: UIProps) : RComponent<UIProps, UIState>(props) {
                     }
 
                     label {
-                        +it.name
+                        +it.name.toLowerCase().replace('_', ' ').capitalize()
                     }
                 }
             }
