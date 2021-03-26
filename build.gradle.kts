@@ -31,9 +31,6 @@ kotlin {
                 cssSupport.enabled = true
             }
             testTask {
-                useKarma {
-                    webpackConfig.cssSupport.enabled = true
-                }
             }
         }
     }
