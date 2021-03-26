@@ -30,8 +30,6 @@ kotlin {
             runTask {
                 cssSupport.enabled = true
             }
-            testTask {
-            }
         }
     }
 }
