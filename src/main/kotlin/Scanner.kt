@@ -8,7 +8,7 @@ object Scanner {
 
         meter.applyTo(result.filterNot { it.isElided })
 
-        inferVowelStresses(result.filterNot { it.isElided })
+        inferVowelStresses(result.filterNot { it.isElided }, meter)
 
         return result
     }
@@ -45,17 +45,18 @@ object Scanner {
         return this
     }
 
-    private tailrec fun inferVowelStresses(vowels: List<Vowel>, fullVowels: List<Vowel> = vowels, vowelsStartsFrom: Int = 0, feet: Sequence<Foot> = Foot.values().asSequence()) {
+    private tailrec fun inferVowelStresses(vowels: List<Vowel>, meter: Meter, fullVowels: List<Vowel> = vowels, vowelsStartsFrom: Int = 0, feet: Sequence<Foot> = Foot.values().asSequence()) {
         val foot = feet
+            .filter { meter.allowedFeet.contains(it) }
             .filter { it.size == vowels.size }
             .filter { it.matches(vowels) }
             .firstOrNull()
         if (foot != null) {
             foot.applyTo(vowels)
             if (fullVowels != vowels && fullVowels.size > vowels.size+vowelsStartsFrom)
-                inferVowelStresses(fullVowels.subList(vowels.size+vowelsStartsFrom, fullVowels.size), fullVowels, vowels.size+vowelsStartsFrom, feet)
+                inferVowelStresses(fullVowels.subList(vowels.size+vowelsStartsFrom, fullVowels.size), meter, fullVowels, vowels.size+vowelsStartsFrom, feet)
         } else if (vowels.size > 1) {
-            inferVowelStresses(vowels.subList(0, vowels.lastIndex), fullVowels, vowelsStartsFrom, feet)
+            inferVowelStresses(vowels.subList(0, vowels.lastIndex), meter, fullVowels, vowelsStartsFrom, feet)
         }
     }
 
@@ -89,7 +90,8 @@ enum class Stress {
 
 enum class Foot(private val stresses: List<Stress>): List<Stress> by stresses {
     DACTYL(listOf(Stress.STRESSED, Stress.UNSTRESSED, Stress.UNSTRESSED)),
-    SPONDEE(listOf(Stress.STRESSED, Stress.STRESSED));
+    SPONDEE(listOf(Stress.STRESSED, Stress.STRESSED)),
+    FLOATING(listOf(Stress.STRESSED));
 
     fun matches(vowels: List<Vowel>): Boolean {
         for ((i, vowel) in vowels.withIndex()) if (!vowel.stress.matches(this[i])) return false
@@ -102,9 +104,10 @@ enum class Foot(private val stresses: List<Stress>): List<Stress> by stresses {
     }
 }
 
-enum class Meter(private val feet: List<Foot?>): List<Foot?> by feet {
-    DACTYLIC_HEXAMETER(listOf(null, null, null, null, Foot.DACTYL, Foot.SPONDEE)),
-    UNKNOWN(listOf());
+enum class Meter(private val feet: List<Foot?>, public val allowedFeet: Collection<Foot>): List<Foot?> by feet {
+    DACTYLIC_HEXAMETER(listOf(null, null, null, null, Foot.DACTYL, Foot.SPONDEE), setOf(Foot.DACTYL, Foot.SPONDEE)),
+    DACTYLIC_PENTAMETER(listOf(null, null, Foot.FLOATING, Foot.DACTYL, Foot.DACTYL, Foot.FLOATING), setOf(Foot.DACTYL, Foot.SPONDEE)),
+    UNKNOWN(listOf(), Foot.values().toList());
 
     fun applyTo(vowels: List<Vowel>): List<Vowel> {
         var i = 0

@@ -10,7 +10,8 @@ object UIStyles : StyleSheet("WelcomeStyles", isStatic = true) {
     }
 
     val textInput by css {
-        margin(vertical = 5.px)
+        margin(vertical = 1.em)
+        width = 30.em
 
         fontSize = 14.px
     }
