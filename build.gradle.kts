@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("js") version "1.4.10"
 }
@@ -30,7 +32,7 @@ kotlin {
             }
             testTask {
                 useKarma {
-                    useChromeHeadless()
+                    useFirefox()
                     webpackConfig.cssSupport.enabled = true
                 }
             }
