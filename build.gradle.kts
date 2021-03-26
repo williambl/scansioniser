@@ -32,7 +32,6 @@ kotlin {
             }
             testTask {
                 useKarma {
-                    useFirefox()
                     webpackConfig.cssSupport.enabled = true
                 }
             }
