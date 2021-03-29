@@ -63,7 +63,7 @@ object Scanner {
     private val singleVowels = Regex("[aeiou]")
     private val diphthongs = Regex("([ao]e)|(ei)|([ae]u)")
     private val elisions = Regex("${singleVowels.pattern}m? h?${singleVowels.pattern}")
-    private val longByPosition = Regex("${singleVowels.pattern} ?([zx]|([bcdfgjklmnpqrst] ?[bcdfgjkmnpqst])|([klmnqrs] ?r)|([bcdfgjpt] r)|([bcdjklmnqrst] ?l)|([fgp] l))")
+    private val longByPosition = Regex("${singleVowels.pattern} ?([zx]|([bcdfgjklmnpqrst] ?[bcdfgjkmnpqstxz])|([klmnqrs] ?r)|([bcdfgjptxz] r)|([bcdjklmnqrst] ?l)|([fgp] l))")
 
     private fun IntRange.overlaps(other: IntRange): Boolean {
         return this.first <= other.last && this.last >= other.first
