@@ -1,4 +1,5 @@
 import kotlinx.html.InputType
+import kotlinx.html.classes
 import kotlinx.html.id
 import kotlinx.html.js.onChangeFunction
 import org.w3c.dom.HTMLInputElement
@@ -50,9 +51,9 @@ class ScansioniserUI(props: UIProps) : RComponent<UIProps, UIState>(props) {
             }
         }
 
-        styledInput {
-            css {
-                UIStyles.textInput
+        input {
+            attrs {
+                classes += "textContainer"
             }
             attrs {
                 type = InputType.text
@@ -63,9 +64,9 @@ class ScansioniserUI(props: UIProps) : RComponent<UIProps, UIState>(props) {
                 }
             }
         }
-        styledDiv {
-            css {
-                UIStyles.textContainer
+        div {
+            attrs {
+                classes += "textContainer"
             }
             +(state.output ?: "")
         }
